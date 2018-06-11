@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd"
+>
+
+
+    <!-- 要启动 注解 配置，本来应该加上  <context:annotation-config/> 这一句，不过下面一句已经包含了它的作用，所以不用重复加  -->
+    <context:component-scan base-package="com.spring.demos.quartz">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+
+    <!-- 这里定义一个 jobDetail , 其中包含一个 job ,以及其它相关的信息 -->
+    <bean name="exampleJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" value="com.spring.demos.quartz.jobs.ExampleJob"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="timeout" value="5"/>
+            </map>
+        </property>
+    </bean>
+    <!-- 这里定义一个 jobDetail 的触发器 -->
+    <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="exampleJob"/>
+        <property name="cronExpression" value="*/5 * * * * ?"/>
+    </bean>
+
+
+
+    <!-- 定义一个 jobDetail ,这里面的 job 并不需要继承任何 spring 的类或者接口 -->
+    <bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="exampleBusinessObject"/>
+        <property name="targetMethod" value="doIt"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+    <!-- 这里定义一个 job 的触发器 -->
+    <bean id="cronTrigger2" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="jobDetail"/>
+        <property name="cronExpression" value="*/3 * * * * ?"/>
+    </bean>
+
+
+
+    <!-- 这里定义一个调度器，实际执行定义任务 -->
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="cronTrigger"/>
+                <ref bean="cronTrigger2"/>
+            </list>
+        </property>
+    </bean>
+
+
+
+</beans>
