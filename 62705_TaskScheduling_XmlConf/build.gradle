@@ -1,0 +1,16 @@
+group 'com.spring.demos.part6'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+description = "Task Execution and Scheduling(任务的执行与调度) 的 xml based config 实现"
+
+dependencies {
+    compile group: 'org.springframework', name: 'spring-context', version: '5.0.2.RELEASE'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
